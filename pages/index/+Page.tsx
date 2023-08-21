@@ -1,13 +1,24 @@
-import { MDXEditor } from '@mdxeditor/editor/MDXEditor'
-import { headingsPlugin } from '@mdxeditor/editor/plugins/headings'
-import { listsPlugin } from '@mdxeditor/editor/plugins/lists'
-import { quotePlugin } from '@mdxeditor/editor/plugins/quote'
-import { thematicBreakPlugin } from '@mdxeditor/editor/plugins/thematic-break'
+import React from 'react'
+// <Map> is:
+//  - Lazy-loaded
+//  - Loaded & rendered only in the browser
+export default function Page() {
+  const [Component, setComponent] = React.useState(() => Loading)
 
-export default Page
+  // useEffect() callbacks are only run in the browser, consequently the map component
+  // is loaded and rendered only in the browser.
+  React.useEffect(() => {
+    // @ts-expect-error The type provided by @types/react is wrong
+    setComponent(() => React.lazy(() => import('./Editor')))
+  }, [])
 
-function Page() {
   return (
-    <MDXEditor markdown='# Hello world' plugins={[headingsPlugin(), listsPlugin(), quotePlugin(), thematicBreakPlugin()]} />
+    <React.Suspense fallback={<Loading />}>
+      <Component />
+    </React.Suspense>
   )
+}
+
+function Loading() {
+  return <div>Loading editor...</div>
 }
